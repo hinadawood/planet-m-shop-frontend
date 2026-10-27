@@ -26,3 +26,12 @@ Feature: Payment redirect and idempotency
   Scenario: Cancel page
     When I land on the cancel page
     Then I can go back to my cart
+
+  Scenario: BFF forwards the idempotency key and shopper IP
+    When I place the order
+    Then the backend call carries the same Idempotency-Key and the shopper's X-Forwarded-For
+
+  Scenario: Gateway rate limit on checkout
+    Given the gateway answers 429
+    When I place the order
+    Then I see a retry message and the same Idempotency-Key is kept for the retry

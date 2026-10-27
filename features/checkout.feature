@@ -1,10 +1,10 @@
 @frontend
 Feature: Checkout
 
-  Scenario: Bill summary
+  Scenario: Bill summary comes from the quote
     Given my cart has items
     When I open checkout
-    Then I see line items and subtotal, shipping, tax and total
+    Then I see line items and subtotal, shipping, tax and total from the checkout quote before the order is placed
 
   Scenario: Shipping form validation
     When I submit the form with required fields empty

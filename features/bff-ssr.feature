@@ -14,6 +14,10 @@ Feature: BFF and server-side rendering
     When the browser calls GET /api/products
     Then the backend is called and the response uses the UI model
 
+  Scenario: BFF serves categories for the pills
+    When the browser calls GET /api/categories
+    Then the response lists Bedroom, Dining, Living and Outdoor
+
   Scenario Outline: BFF maps backend errors
     Given the backend answers <backend>
     When the browser calls the BFF
@@ -23,6 +27,7 @@ Feature: BFF and server-side rendering
       | 404     | 404 |
       | 409     | 409 |
       | 400     | 400 |
+      | 429     | 429 |
 
   Scenario: Secrets are never exposed
     Then BFF responses contain neither the backend URL nor Stripe secrets
@@ -38,3 +43,12 @@ Feature: BFF and server-side rendering
   Scenario: Product change revalidates SSR pages
     When a product is changed through the BFF
     Then the "products" cache tag is revalidated
+
+  Scenario: Client IP and request id are forwarded to the gateway
+    When the browser calls any BFF route
+    Then the backend call carries X-Forwarded-For with the shopper's IP and an X-Request-Id
+
+  Scenario: Rate limit is shown as a friendly message
+    Given the gateway answers 429 with Retry-After
+    When the browser calls the BFF
+    Then the UI shows "Too many requests, please try again shortly"
